@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ecommerce-platform
+  namespace: argocd
+spec:
+  description: E-commerce application project with restricted access
+
+  # Source repositories allowed
+  sourceRepos:
+  - 'https://github.com/Tebi123/ecommerce-app'
+  - 'https://helm.releases.hashicorp.com'
+
+  # Destination clusters and namespaces
+  destinations:
+  - namespace: ecommerce-app
+    server: https://kubernetes.default.svc
+  - namespace: ecommerce-staging
+    server: https://kubernetes.default.svc
+
+  # Cluster resource allow list
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  - group: 'rbac.authorization.k8s.io'
+    kind: ClusterRole
+  - group: 'rbac.authorization.k8s.io'
+    kind: ClusterRoleBinding
+
+  # Namespace resource allow list
+  namespaceResourceWhitelist:
+  - group: ''
+    kind: Service
+  - group: ''
+    kind: ConfigMap
+  - group: ''
+    kind: Secret
+  - group: 'apps'
+    kind: Deployment
+  - group: 'apps'
+    kind: ReplicaSet
+  - group: 'autoscaling'
+    kind: HorizontalPodAutoscaler
+  - group: 'networking.k8s.io'
+    kind: Ingress
+
+  # RBAC policies for this project
+  roles:
+  - name: ecommerce-admin
+    description: Admin access to ecommerce applications
+    policies:
+    - p, proj:ecommerce-platform:ecommerce-admin, applications, *, ecommerce-platform/*, allow
+    groups:
+    - ecommerce-admins
+
+  - name: ecommerce-developer
+    description: Developer access to ecommerce applications
+    policies:
+    - p, proj:ecommerce-platform:ecommerce-developer, applications, get, ecommerce-platform/*, allow
+    - p, proj:ecommerce-platform:ecommerce-developer, applications, sync, ecommerce-platform/*, allow
+    groups:
+    - ecommerce-developers
+
+  - name: ecommerce-readonly
+    description: Read-only access to ecommerce applications
+    policies:
+    - p, proj:ecommerce-platform:ecommerce-readonly, applications, get, ecommerce-platform/*, allow
+    groups:
+    - ecommerce-viewers

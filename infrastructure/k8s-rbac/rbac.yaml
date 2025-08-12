@@ -1,0 +1,65 @@
+# # ... RBAC content ...
+# # k8s-rbac/rbac.yaml
+
+# # Namespace for testing
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: development
+# ---
+# # Admin ClusterRole (full access)
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: omotebi-admin
+# rules:
+# - apiGroups: ["*"]
+#   resources: ["*"]
+#   verbs: ["*"]
+# ---
+# # Read-Only ClusterRole
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: abimbola-readonly
+# rules:
+# - apiGroups: [""]
+#   resources: ["namespaces", "nodes", "pods", "services", "configmaps", "secrets"]
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: ["apps"]
+#   resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: ["batch"]
+#   resources: ["jobs", "cronjobs"]
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: [""]
+#   resources: ["pods/log", "pods/status"]
+#   verbs: ["get"]
+# ---
+# # ClusterRoleBinding for Admin
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: eks-admin-binding
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: eks-admin
+# subjects:
+# - kind: User
+#   name: "arn:aws:iam::461759747665:role/eks-automode-cluster-dev-admin-role"
+#   apiGroup: rbac.authorization.k8s.io
+# ---
+# # ClusterRoleBinding for Read-Only
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: eks-readonly-binding
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: eks-readonly
+# subjects:
+# - kind: User
+#   name: "arn:aws:iam::461759747665:role/eks-automode-cluster-dev-readonly-role"
+#   apiGroup: rbac.authorization.k8s.io
